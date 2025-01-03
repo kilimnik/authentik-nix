@@ -114,6 +114,7 @@ pkgs:
        ];
      });
      python-kadmin = prev.python-kadmin.overrideAttrs (oA: {
+       env.NIX_CFLAGS_COMPILE = "-Wno-error=int-conversion";
        nativeBuildInputs = oA.nativeBuildInputs ++ [
          final.setuptools
          final.poetry-core
