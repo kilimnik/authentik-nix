@@ -353,9 +353,9 @@ in
 
         systemd.services = {
           authentik-migrate = {
-            requires = lib.optionals cfg.createDatabase [ "postgresql.service" ];
+            requires = lib.optionals cfg.createDatabase [ "postgresql.target" ];
             wants = [ "network-online.target" ];
-            after = [ "network-online.target" ] ++ lib.optionals cfg.createDatabase [ "postgresql.service" ];
+            after = [ "network-online.target" ] ++ lib.optionals cfg.createDatabase [ "postgresql.target" ];
             before = [ "authentik.service" "authentik-migrate.service" ];
             restartTriggers = [ config.environment.etc."authentik/config.yml".source ];
             environment = mkMerge [
@@ -381,8 +381,9 @@ in
             ];
           };
           authentik-worker = {
+            requires = lib.optionals cfg.createDatabase [ "postgresql.target" ];
             wants = [ "network-online.target" ];
-            after = [ "network-online.target" ];
+            after = [ "network-online.target" ] ++ lib.optionals cfg.createDatabase [ "postgresql.target" ];
             before = [ "authentik.service" ];
             restartTriggers = [ config.environment.etc."authentik/config.yml".source ];
             preStart = ''
@@ -423,7 +424,7 @@ in
             after = [
               "network-online.target"
             ]
-            ++ (lib.optionals cfg.createDatabase [ "postgresql.service" ]);
+            ++ (lib.optionals cfg.createDatabase [ "postgresql.target" ]);
             restartTriggers = [ config.environment.etc."authentik/config.yml".source ];
             preStart = ''
               ln -svf ${cfg.authentikComponents.staticWorkdirDeps}/* /var/lib/authentik/
