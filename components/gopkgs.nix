@@ -8,10 +8,12 @@
   guacamole-server,
   stdenv,
   patches,
+  generatedGoClient,
 }:
 
 let
   guacamoleAvailable = lib.meta.availableOn stdenv.hostPlatform guacamole-server;
+
 in
 buildGo125Module {
   pname = "authentik-gopkgs";
@@ -21,6 +23,9 @@ buildGo125Module {
     sed -i"" -e 's,./web/dist/,${authentikComponents.frontend}/dist/,' web/static.go
     sed -i"" -e 's,./web/dist/,${authentikComponents.frontend}/dist/,' internal/web/static.go
     sed -i"" -e 's,./lifecycle/gunicorn.conf.py,${authentikComponents.staticWorkdirDeps}/lifecycle/gunicorn.conf.py,' internal/gounicorn/gounicorn.go
+    cp --no-preserve=mode -vr ${generatedGoClient} gen-go-api
+    echo "replace goauthentik.io/api/v3 => ./gen-go-api" >>go.mod
+    go mod edit -require=goauthentik.io/api/v3@v3.0.0
   '' + lib.optionalString guacamoleAvailable ''
     substituteInPlace internal/outpost/rac/guacd.go \
       --replace-fail '/opt/guacamole/sbin/guacd' \
@@ -43,6 +48,7 @@ buildGo125Module {
           "/web/security.txt"
           "go.mod"
           "go.sum"
+          "schema.yml"
         ])
       ))
     );
@@ -63,7 +69,7 @@ buildGo125Module {
   ] ++ lib.optionals guacamoleAvailable [
     "cmd/rac"
   ];
-  vendorHash = "sha256-u/kAqDCeWHPaw/0+lQ9U6/pHSgdANOeflQLVgUV64Vs=";
+  vendorHash = "sha256-meqQHr5U0/6nc8fv1b4SFo2ohFcwSeAmSB1eLKsO9nc=";
   nativeBuildInputs = [ makeWrapper ];
   doCheck = false;
   postInstall = ''
