@@ -42,8 +42,11 @@
     };
     authentik-src = {
       # change version string in outputs as well when updating
-      #url = "github:goauthentik/authentik/version/2025.12.1";
-      url = "github:ma27/authentik/2025.12.1-dependency-fix";
+      url = "github:goauthentik/authentik/version/2025.12.3";
+      flake = false;
+    };
+    authentik-go = {
+      url = "github:goauthentik/client-go";
       flake = false;
     };
   };
@@ -54,6 +57,7 @@
       flake-parts,
       napalm,
       authentik-src,
+      authentik-go,
       uv2nix,
       pyproject-build-systems,
       pyproject-nix,
@@ -68,7 +72,7 @@
         ...
       }:
       let
-        authentik-version = "2025.12.1"; # to pass to the drvs of some components
+        authentik-version = "2025.12.3"; # to pass to the drvs of some components
       in
       {
         systems = import inputs.systems;
@@ -127,6 +131,8 @@
                   manage = final.callPackage ./components/manage.nix { };
                 };
 
+                generatedGoClient = final.callPackage ./components/client-go.nix { };
+
                 # for uv2nix
                 pythonOverlay = final.callPackage ./components/python-overrides.nix { };
 
@@ -136,6 +142,7 @@
 
                 inherit
                   authentik-src
+                  authentik-go
                   authentik-version
                   buildNapalmPackage
                   uv2nix
