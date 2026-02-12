@@ -69,7 +69,7 @@ buildGo125Module {
   ] ++ lib.optionals guacamoleAvailable [
     "cmd/rac"
   ];
-  vendorHash = "sha256-meqQHr5U0/6nc8fv1b4SFo2ohFcwSeAmSB1eLKsO9nc=";
+  vendorHash = "sha256-hdkd7/bqgTvYwlhVA9zEQny6yDowMaoRcC7TdRoXfJc=";
   nativeBuildInputs = [ makeWrapper ];
   doCheck = false;
   postInstall = ''
